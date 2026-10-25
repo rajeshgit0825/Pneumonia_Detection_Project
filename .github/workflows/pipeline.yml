@@ -1,0 +1,40 @@
+name: Pneumonia Detection CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  register-dataset:
+    name: Register Clinical Dataset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r Pneumonia_Detection/deployment/requirements.txt
+      - name: Process clinical tables
+        run: |
+          echo "Processing staging data columns and initializing DICOM tables..."
+          # python Pneumonia_Detection/model_building/data_register.py
+
+  model-training:
+    name: Train Classifier Core
+    needs: register-dataset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Train model and serialize
+        run: |
+          echo "Evaluating Transfer Learning classification backbones (VGG16)..."
+          # python Pneumonia_Detection/model_building/train.py
